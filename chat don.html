@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SADHISH CHATBOT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fce38a, #f38181, #95e1d3);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="flex flex-col w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden h-[90vh]">
+
+        <!-- Chat Header -->
+        <header class="p-4 bg-purple-600 text-white text-xl font-bold flex flex-col sm:flex-row items-center justify-between rounded-t-xl space-y-2 sm:space-y-0 sm:space-x-2">
+            <span>SADHISH CHATBOT</span>
+            <div class="flex space-x-2 w-full sm:w-auto overflow-x-auto">
+                <button id="summarize-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 whitespace-nowrap">
+                    ✨ Summarize Chat
+                </button>
+                <button id="continue-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 whitespace-nowrap">
+                    ✨ Continue
+                </button>
+                <button id="image-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 whitespace-nowrap">
+                    ✨ Generate Image
+                </button>
+                <button id="share-media-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 whitespace-nowrap">
+                    ✨ Share Media
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Log Area -->
+        <main id="chat-log" class="flex-grow p-4 overflow-y-auto space-y-4">
+            <!-- Initial bot message -->
+            <div class="flex justify-start">
+                <div class="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xs shadow-md">
+                    Hello! I'm a helpful assistant powered by SADHISH CHATBOT. How can I assist you today?
+                    <button class="ml-2 text-purple-500 hover:text-purple-700" onclick="textToSpeech(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="flex justify-start hidden">
+                <div class="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xs shadow-md">
+                    <div class="flex items-center space-x-2">
+                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Thinking...</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- User Input Area -->
+        <footer class="p-4 bg-gray-100 rounded-b-xl flex justify-center items-center">
+            <div class="flex flex-grow space-x-2 w-full max-w-xl">
+                <input type="text" id="user-input" class="flex-grow p-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button id="voice-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3v-1.5a3 3 0 0 1 3-3m0 6a3 3 0 0 0 3-3v-1.5a3 3 0 0 0-3-3m-3.75 0h7.5" />
+                    </svg>
+                </button>
+                <button id="send-button" class="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+        </footer>
+
+    </div>
+    <script>
+        // Get references to all necessary DOM elements
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const summarizeButton = document.getElementById('summarize-button');
+        const continueButton = document.getElementById('continue-button');
+        const imageButton = document.getElementById('image-button');
+        const voiceButton = document.getElementById('voice-button');
+        const shareMediaButton = document.getElementById('share-media-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        
+        // This array will hold the conversation history
+        // The format is compatible with the OpenRouter API
+        let chatHistory = [{
+            "role": "system",
+            "content": "you are a helpful"
+        }];
+
+        // Audio context for playing TTS audio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let lastAssistantMessage = "";
+        let speechRecognition;
+
+        /**
+         * Adds a message to the chat log UI.
+         * @param {string} text - The message content.
+         * @param {string} sender - 'user' or 'assistant'.
+         * @param {string} type - 'text', 'image', or 'video'.
+         */
+        function addMessageToLog(content, sender, type = 'text') {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `p-3 rounded-lg max-w-xs shadow-md ${sender === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-800'}`;
+            
+            if (type === 'image') {
+                const imageElement = document.createElement('img');
+                imageElement.src = content;
+                imageElement.alt = "Generated Image";
+                imageElement.className = "rounded-lg max-w-full h-auto";
+                messageBubble.appendChild(imageElement);
+            } else if (type === 'video') {
+                const videoElement = document.createElement('video');
+                videoElement.src = content;
+                videoElement.controls = true;
+                videoElement.className = "rounded-lg max-w-full h-auto";
+                messageBubble.appendChild(videoElement);
+            }
+            else {
+                messageBubble.innerText = content;
+                // Add the TTS button for assistant messages
+                if (sender === 'assistant') {
+                    lastAssistantMessage = content;
+                    const ttsButton = document.createElement('button');
+                    ttsButton.className = "ml-2 text-purple-500 hover:text-purple-700";
+                    ttsButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                                        </svg>`;
+                    ttsButton.onclick = () => textToSpeech(messageBubble.innerText);
+                    messageBubble.appendChild(ttsButton);
+                }
+            }
+
+            messageContainer.appendChild(messageBubble);
+            chatLog.appendChild(messageContainer);
+            chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the latest message
+        }
+
+        /**
+         * Converts a base64 string to an ArrayBuffer.
+         * @param {string} base64 - The base64 encoded string.
+         * @returns {ArrayBuffer}
+         */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /**
+         * Converts raw PCM audio data to a WAV Blob.
+         * @param {Int16Array} pcmData - The raw PCM data.
+         * @param {number} sampleRate - The sample rate of the audio.
+         * @returns {Blob}
+         */
+        function pcmToWav(pcmData, sampleRate) {
+            const numSamples = pcmData.length;
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+            
+            // WAV header
+            // RIFF chunk
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            writeString(view, 8, 'WAVE');
+            // FMT chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM format
+            view.setUint16(22, 1, true); // Mono
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true); // Byte rate
+            view.setUint16(32, 2, true); // Block align
+            view.setUint16(34, 16, true); // Bits per sample
+            // DATA chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+
+            // Write PCM data
+            let offset = 44;
+            for (let i = 0; i < numSamples; i++) {
+                view.setInt16(offset, pcmData[i], true);
+                offset += 2;
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        /**
+         * Helper function to write a string to a DataView.
+         * @param {DataView} view - The data view.
+         * @param {number} offset - The starting offset.
+         * @param {string} str - The string to write.
+         */
+        function writeString(view, offset, str) {
+            for (let i = 0; i < str.length; i++) {
+                view.setUint8(offset + i, str.charCodeAt(i));
+            }
+        }
+
+        /**
+         * Sends text to the Gemini TTS API and plays the audio.
+         * @param {string} text - The text to be converted to speech.
+         */
+        async function textToSpeech(text) {
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: "Kore" } // Using the 'Kore' voice
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+
+                if (part && part.inlineData && part.inlineData.data && part.inlineData.mimeType) {
+                    const audioData = part.inlineData.data;
+                    const mimeType = part.inlineData.mimeType;
+
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+
+                    audio.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                } else {
+                    console.error("TTS API response is not in the expected format.");
+                }
+            } catch (error) {
+                console.error("Error with TTS API:", error);
+            }
+        }
+        
+        /**
+         * Starts the speech recognition process.
+         */
+        function startVoiceInput() {
+            // Check if the browser supports the Web Speech API
+            if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+                addMessageToLog("Voice recognition is not supported in this browser.", 'assistant');
+                return;
+            }
+
+            // Create a new speech recognition object
+            speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            speechRecognition.continuous = false; // Stop after a single phrase
+            speechRecognition.lang = 'en-US';
+            speechRecognition.interimResults = false;
+
+            // Event listener for when recognition starts
+            speechRecognition.onstart = () => {
+                console.log("Voice recognition started...");
+                voiceButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                voiceButton.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+            };
+
+            // Event listener for when a result is received
+            speechRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                console.log("Voice transcript:", transcript);
+                // Send the transcribed text as a message
+                sendMessage(transcript);
+            };
+
+            // Event listener for when recognition ends
+            speechRecognition.onend = () => {
+                console.log("Voice recognition ended.");
+                voiceButton.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                voiceButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+            };
+
+            // Event listener for errors
+            speechRecognition.onerror = (event) => {
+                console.error("Voice recognition error:", event.error);
+                addMessageToLog(`Voice input error: ${event.error}`, 'assistant');
+                voiceButton.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                voiceButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+            };
+
+            speechRecognition.start();
+        }
+
+        /**
+         * Sends the user's message to the OpenRouter API and handles the response.
+         */
+        async function sendMessage(prompt = userInput.value.trim()) {
+            if (!prompt) return;
+
+            addMessageToLog(prompt, 'user');
+            chatHistory.push({
+                "role": "user",
+                "content": prompt
+            });
+            userInput.value = '';
+            
+            loadingIndicator.classList.remove('hidden');
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            try {
+                const apiKey = "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";
+                const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+                
+                const payload = {
+                    "model": "mistralai/mistral-7b-instruct",
+                    "messages": chatHistory
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Error:", errorText);
+                    addMessageToLog(`API Error: ${response.status} - ${response.statusText}`, 'assistant');
+                    return;
+                }
+                
+                const result = await response.json();
+
+                if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+                    const botReply = result.choices[0].message.content;
+                    addMessageToLog(botReply, 'assistant');
+                    chatHistory.push({
+                        "role": "assistant",
+                        "content": botReply
+                    });
+                } else {
+                    addMessageToLog("Sorry, I couldn't get a response. Please try again.", 'assistant');
+                }
+
+            } catch (error) {
+                console.error("Error fetching from API:", error);
+                addMessageToLog("An unexpected error occurred. Please check the console for details.", 'assistant');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+        
+        /**
+         * Sends the chat history to the Gemini API for summarization.
+         */
+        async function summarizeChat() {
+            // Filter out the system message to get only the conversation
+            const conversation = chatHistory.filter(msg => msg.role !== 'system');
+            if (conversation.length === 0) {
+                addMessageToLog("There's nothing to summarize yet!", 'assistant');
+                return;
+            }
+            
+            // Show loading indicator
+            loadingIndicator.classList.remove('hidden');
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            try {
+                const summaryPrompt = `Please provide a brief, concise summary of the following conversation:\n\n` +
+                                     conversation.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+                
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: summaryPrompt }]
+                    }]
+                };
+
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Gemini API Error:", errorText);
+                    addMessageToLog(`Summary failed. API Error: ${response.status} - ${response.statusText}`, 'assistant');
+                    return;
+                }
+                
+                const result = await response.json();
+                const summary = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (summary) {
+                    addMessageToLog(`Chat Summary: ${summary}`, 'assistant');
+                } else {
+                    addMessageToLog("I'm sorry, I couldn't generate a summary at this time.", 'assistant');
+                }
+
+            } catch (error) {
+                console.error("Error summarizing chat:", error);
+                addMessageToLog("An unexpected error occurred while trying to summarize the chat.", 'assistant');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Prompts the chatbot to continue the last conversation thread.
+         */
+        async function continueChat() {
+            const lastMessage = chatHistory[chatHistory.length - 1];
+            if (!lastMessage || lastMessage.role !== 'assistant') {
+                addMessageToLog("There's nothing to continue yet! Start a conversation first.", 'assistant');
+                return;
+            }
+
+            const continuePrompt = "Please continue and elaborate on your last response.";
+            await sendMessage(continuePrompt);
+        }
+
+        /**
+         * Generates an image based on the last user prompt.
+         */
+        async function generateImage() {
+            // Find the last user prompt in the chat history
+            const lastUserMessage = chatHistory.slice().reverse().find(msg => msg.role === 'user');
+            if (!lastUserMessage) {
+                addMessageToLog("Please enter a text prompt first to generate an image.", 'assistant');
+                return;
+            }
+
+            const prompt = lastUserMessage.content;
+            addMessageToLog(`Generating image for: "${prompt}"...`, 'assistant');
+            loadingIndicator.classList.remove('hidden');
+            chatLog.scrollTop = chatLog.scrollHeight;
+            
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Image API Error:", errorText);
+                    addMessageToLog(`Image generation failed. API Error: ${response.status} - ${response.statusText}`, 'assistant');
+                    return;
+                }
+                
+                const result = await response.json();
+
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    addMessageToLog(imageUrl, 'assistant', 'image');
+                } else {
+                    addMessageToLog("I'm sorry, I couldn't generate an image from that prompt.", 'assistant');
+                }
+            } catch (error) {
+                console.error("Error generating image:", error);
+                addMessageToLog("An unexpected error occurred while trying to generate the image.", 'assistant');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+        
+        /**
+         * This function simulates importing media and displays it in the chat.
+         */
+        function shareMedia() {
+            addMessageToLog(`Sharing a new photo and video...`, 'assistant');
+            
+            // Example image URL (replace with your own or a Blob from a file upload)
+            const imageUrl = 'https://placehold.co/400x300/F38181/FFF?text=Hello+World';
+            addMessageToLog(imageUrl, 'user', 'image');
+
+            // Example video URL (replace with your own or a Blob from a file upload)
+            const videoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
+            addMessageToLog(videoUrl, 'user', 'video');
+        }
+
+
+        // Add event listeners for the new buttons
+        sendButton.addEventListener('click', () => sendMessage());
+        summarizeButton.addEventListener('click', summarizeChat);
+        continueButton.addEventListener('click', continueChat);
+        imageButton.addEventListener('click', generateImage);
+        voiceButton.addEventListener('click', startVoiceInput);
+        shareMediaButton.addEventListener('click', shareMedia);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
